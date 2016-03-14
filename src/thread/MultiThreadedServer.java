@@ -7,20 +7,22 @@ import java.net.Socket;
 public class MultiThreadedServer {
 	
 	  public static void main(String args[]) throws Exception {
+		  
+		  	System.out.println("server!");
 		    
-		    // create a server side socket - same as before
 		    ServerSocket server = new ServerSocket(9999);
 		    while(true) {
 		    	try {
-			        Socket socket = server.accept();
-			        new ThreadedSocket(socket).start();
+		    		Socket socket = server.accept();
+		    		new ThreadedSocket(socket).start();
 		    	} catch(IOException e) {
-		    		try {
-						server.close();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+		    		server.close();
+//		    		try {
+//						server.close();
+//					} catch (IOException e1) {
+//						// TODO Auto-generated catch block
+//						System.out.println(e1.getMessage());
+//					}
 		    	}
 		    }
 	  }

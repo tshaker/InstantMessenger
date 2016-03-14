@@ -20,13 +20,20 @@ public class ThreadedSocket extends Thread {
 		try {
 			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			output = new PrintWriter(socket.getOutputStream(), true);
+			
+			while(true) {
+				String inputLine;
+				while ((inputLine = input.readLine()) != null) {
+					output.println(inputLine);
+				}
+			}
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			try {
 				socket.close();
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				System.out.println(e1.getMessage());
 			}
 			System.exit(-1);
 		}
@@ -34,14 +41,14 @@ public class ThreadedSocket extends Thread {
 		while(true) {
 			try {
 				output.println(input.readLine());
-				System.out.println(input.readLine());
+				System.out.println(output);
 			} catch (IOException e) {
 				System.out.println(e.getMessage());
 				try {
 					socket.close();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					System.out.println(e1.getMessage());
 				}
 				System.exit(-1);
 			}
