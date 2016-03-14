@@ -1,5 +1,4 @@
 package thread;
-
 /*
  * Copyright (c) 1995, 2013, Oracle and/or its affiliates. All rights reserved.
  *
