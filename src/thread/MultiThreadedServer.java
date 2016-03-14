@@ -5,14 +5,13 @@ import java.net.Socket;
 
 public class MultiThreadedServer {
 	
-	  public static void main( String args[] ) throws Exception {
+	  public static void main(String args[]) throws Exception {
 		    
 		    // create a server side socket - same as before
-		    ServerSocket server = new ServerSocket( 9999 );
-		    while( true ) {
-		        
+		    ServerSocket server = new ServerSocket(9999);
+		    while(true) {
 		        Socket socket = server.accept();
-		        new ThreadedSocket( socket ).start();
+		        new ThreadedSocket(socket).start();
 		    }
 	  } 
 } 

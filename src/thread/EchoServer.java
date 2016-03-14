@@ -36,6 +36,12 @@ import java.io.*;
 
 public class EchoServer {
     public static void main(String[] args) throws IOException {
+    	
+    	// TODO: remove this and implement actual input
+    	args = new String[1];
+    	args[0] = "9999";
+    	System.out.println(args);
+
         
         if (args.length != 1) {
             System.err.println("Usage: java EchoServer <port number>");

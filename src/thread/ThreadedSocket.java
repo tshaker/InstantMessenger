@@ -4,8 +4,12 @@ import java.net.Socket;
 
 public class ThreadedSocket extends Thread {
 	Socket socket;
-		  ThreadedSocket( Socket socket ) {
-		    this.socket = socket;
-		  }
-		 // ...
+	
+	ThreadedSocket(Socket socket) {
+		this.socket = socket;
+	}
+	
+	public void run() {
+		
+	}
 }
