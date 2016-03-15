@@ -52,7 +52,7 @@ public class Client extends JFrame {
 		
 		String message;
 		while((message = in.readLine()) != null) {
-			textArea.append("SERVER: " + message + "\n");
+			textArea.append(message + "\n");
 		}
 		
 		socket.close();
@@ -79,7 +79,7 @@ public class Client extends JFrame {
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textArea.append("CLIENT: " + e.getActionCommand() + "\n");
-				out.println(e.getActionCommand());
+				out.println("CLIENT: " + e.getActionCommand());
 				textField.setText("");
 			}
 		});

@@ -73,7 +73,9 @@ public class MultiThreadedServer extends JFrame {
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textArea.append("SERVER: " + e.getActionCommand() + "\n");
-				ThreadedSocket.out.println(e.getActionCommand());
+				for (PrintWriter current : ThreadedSocket.out) {
+					current.println("SERVER: " + e.getActionCommand());
+				}
 				textField.setText("");
 			}
 		});
