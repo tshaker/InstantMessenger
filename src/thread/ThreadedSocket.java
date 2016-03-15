@@ -14,22 +14,17 @@ public class ThreadedSocket extends Thread {
 		this.socket = socket;
 	}
 	
+	public static PrintWriter out;
+	private static BufferedReader in;
+	
 	public void run() {
 		try {
-			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-			// PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in)); // TODO: take out
+			out = new PrintWriter(socket.getOutputStream(), true);
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
-//			String inputLine;
-//			while ((inputLine = stdIn.readLine()) != null) {
-//				out.println(inputLine);
-//				System.out.println("echo: " + inputLine);
-//			}
-			
-			while(true) { // TODO: make this stop printing "null" after client exits
-				String message = (String) in.readLine();
-				System.out.println(message);
+			String message;
+			while((message = in.readLine()) != null) {
+				MultiThreadedServer.textArea.append("CLIENT: " + message + "\n");
 			}
 		} catch (IOException e) {
 			System.out.println(e.getMessage());

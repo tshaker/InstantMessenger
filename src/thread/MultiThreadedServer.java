@@ -21,7 +21,7 @@ public class MultiThreadedServer extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-	private JTextArea textArea;
+	public static JTextArea textArea;
 	private JScrollPane scrollPane;
 	
 	/**
@@ -73,6 +73,7 @@ public class MultiThreadedServer extends JFrame {
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textArea.append("SERVER: " + e.getActionCommand() + "\n");
+				ThreadedSocket.out.println(e.getActionCommand());
 				textField.setText("");
 			}
 		});

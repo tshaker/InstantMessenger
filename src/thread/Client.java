@@ -21,7 +21,7 @@ public class Client extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-	private JTextArea textArea;
+	private static JTextArea textArea;
 	private JScrollPane scrollPane;
 	
 	private static Socket socket;
@@ -50,10 +50,9 @@ public class Client extends JFrame {
 		out = new PrintWriter(socket.getOutputStream(), true);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		
-		String userInput;
-		while ((userInput = in.readLine()) != null) {
-			out.println(userInput);
-			System.out.println("echo: " + userInput);
+		String message;
+		while((message = in.readLine()) != null) {
+			textArea.append("SERVER: " + message + "\n");
 		}
 		
 		socket.close();
@@ -80,7 +79,7 @@ public class Client extends JFrame {
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				textArea.append("CLIENT: " + e.getActionCommand() + "\n");
-				out.println("CLIENT: " + e.getActionCommand() + "\n");
+				out.println(e.getActionCommand());
 				textField.setText("");
 			}
 		});
