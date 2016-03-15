@@ -15,13 +15,13 @@ public class Client {
 		int portNumber = 9999;
 		
 		Socket socket = new Socket(hostName, portNumber);
-		PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in)); // TODO: take out
 		
 		String userInput;
 		while ((userInput = stdIn.readLine()) != null) {
-			output.println(userInput);
+			out.println(userInput);
 			System.out.println("echo: " + userInput);
 		}
 		

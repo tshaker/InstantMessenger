@@ -16,13 +16,8 @@ public class MultiThreadedServer {
 		    		Socket socket = server.accept();
 		    		new ThreadedSocket(socket).start();
 		    	} catch(IOException e) {
+		    		System.out.println(e.getMessage());
 		    		server.close();
-//		    		try {
-//						server.close();
-//					} catch (IOException e1) {
-//						// TODO Auto-generated catch block
-//						System.out.println(e1.getMessage());
-//					}
 		    	}
 		    }
 	  }

@@ -3,6 +3,7 @@ package thread;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -14,44 +15,25 @@ public class ThreadedSocket extends Thread {
 	}
 	
 	public void run() {
-		BufferedReader input = null;
-		PrintWriter output = null;
-		
 		try {
-			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			output = new PrintWriter(socket.getOutputStream(), true);
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+			// PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in)); // TODO: take out
 			
-			while(true) {
-				String inputLine;
-				while ((inputLine = input.readLine()) != null) {
-					output.println(inputLine);
-				}
+			String inputLine;
+			while ((inputLine = stdIn.readLine()) != null) {
+				out.println(inputLine);
+				System.out.println("echo: " + inputLine);
 			}
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			try {
 				socket.close();
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				System.out.println(e1.getMessage());
 			}
 			System.exit(-1);
-		}
-		
-		while(true) {
-			try {
-				output.println(input.readLine());
-				System.out.println(output);
-			} catch (IOException e) {
-				System.out.println(e.getMessage());
-				try {
-					socket.close();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					System.out.println(e1.getMessage());
-				}
-				System.exit(-1);
-			}
 		}
 	}
 }
