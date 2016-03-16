@@ -7,6 +7,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class ThreadedSocket extends Thread {
 	Socket socket;
@@ -16,16 +18,19 @@ public class ThreadedSocket extends Thread {
 	}
 	
 	public static ArrayList<PrintWriter> out = new ArrayList<PrintWriter>();
-	private static BufferedReader in;
+	private static ArrayList<BufferedReader> in = new ArrayList<BufferedReader>();
 	
 	public void run() {
 		try {
 			out.add(new PrintWriter(socket.getOutputStream(), true));
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			in.add(new BufferedReader(new InputStreamReader(socket.getInputStream())));
 			
-			String message;
-			while((message = in.readLine()) != null) {
-				MultiThreadedServer.textArea.append(message + "\n");
+			while (true) {
+				for (int i = 0; i < in.size(); i++) {
+					if (in.get(i).ready()) {
+						MultiThreadedServer.textArea.append(in.get(i).readLine() + "\n");
+					}
+				}
 			}
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
