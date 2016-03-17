@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -16,6 +17,8 @@ import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class MultiThreadedServer extends JFrame {
 
@@ -24,11 +27,15 @@ public class MultiThreadedServer extends JFrame {
 	public static JTextArea textArea; // TODO: pass the object and take away static
 	private JScrollPane scrollPane;
 	
+	private static String port;
+	
 	/**
 	 * Launch the application.
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException {		
+		port = JOptionPane.showInputDialog("Port Number:");
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -39,23 +46,37 @@ public class MultiThreadedServer extends JFrame {
 				}
 			}
 		});
-				
-	    ServerSocket server = new ServerSocket(9999);
-	    while(true) {
-	    	try {
-	    		Socket socket = server.accept();
-	    		new ThreadedSocket(socket).start();
-	    	} catch(IOException e) {
-	    		System.out.println(e.getMessage());
-	    		server.close();
-	    	}
-	    }
+		
+		try {
+			ServerSocket server = new ServerSocket(Integer.parseInt(port));
+			
+			while(true) {
+		    	try {
+		    		Socket socket = server.accept();
+		    		new ThreadedSocket(socket).start();
+		    	} catch(IOException e) {
+		    		System.out.println(e.getMessage());
+		    		server.close();
+		    	}
+		    }
+		} catch(Exception e) {
+			System.out.println("ERROR: Could not connect to port \"" + port + "\".");
+			System.exit(-1);
+		}
 	}
 
 	/**
 	 * Create the frame.
 	 */
 	public MultiThreadedServer() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				for (PrintWriter current : ThreadedSocket.out) {
+					current.println("This chat has ended.");
+				}
+			}
+		});
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -73,9 +94,9 @@ public class MultiThreadedServer extends JFrame {
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textArea.append("SERVER: " + e.getActionCommand() + "\n");
+				textArea.append("HOST: " + e.getActionCommand() + "\n");
 				for (PrintWriter current : ThreadedSocket.out) {
-					current.println("SERVER: " + e.getActionCommand());
+					current.println("HOST: " + e.getActionCommand());
 				}
 				textField.setText("");
 			}
