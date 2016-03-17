@@ -16,6 +16,8 @@ import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class MultiThreadedServer extends JFrame {
 
@@ -56,6 +58,14 @@ public class MultiThreadedServer extends JFrame {
 	 * Create the frame.
 	 */
 	public MultiThreadedServer() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				for (PrintWriter current : ThreadedSocket.out) {
+					current.println("This chat has ended.");
+				}
+			}
+		});
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -73,9 +83,9 @@ public class MultiThreadedServer extends JFrame {
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textArea.append("SERVER: " + e.getActionCommand() + "\n");
+				textArea.append("HOST: " + e.getActionCommand() + "\n");
 				for (PrintWriter current : ThreadedSocket.out) {
-					current.println("SERVER: " + e.getActionCommand());
+					current.println("HOST: " + e.getActionCommand());
 				}
 				textField.setText("");
 			}

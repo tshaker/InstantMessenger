@@ -16,6 +16,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Client extends JFrame {
 
@@ -66,6 +68,12 @@ public class Client extends JFrame {
 	 * Create the frame.
 	 */
 	public Client() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				out.println(clientName + " has exited the chat!");
+			}
+		});
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -89,5 +97,4 @@ public class Client extends JFrame {
 		contentPane.add(textField, BorderLayout.SOUTH);
 		textField.setColumns(10);
 	}
-
 }
