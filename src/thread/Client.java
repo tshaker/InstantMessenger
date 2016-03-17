@@ -2,60 +2,70 @@ package thread;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JScrollPane;
 
-public class MultiThreadedServer extends JFrame {
+public class Client extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-	public static JTextArea textArea; // TODO: pass the object and take away static
+	private static JTextArea textArea = new JTextArea();
 	private JScrollPane scrollPane;
 	
+	private static String clientName;
+	private static Socket socket;
+	private static PrintWriter out;
+	private static BufferedReader in;
+
 	/**
 	 * Launch the application.
-	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception{
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MultiThreadedServer frame = new MultiThreadedServer();
+					Client frame = new Client();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+		
+		clientName = "CLIENT";
+		String hostName = "localhost";
+		int portNumber = 9999;
+		
+		socket = new Socket(hostName, portNumber);
+		out = new PrintWriter(socket.getOutputStream(), true);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		
+		out.println(clientName + " has joined the chat!");
 				
-	    ServerSocket server = new ServerSocket(9999);
-	    while(true) {
-	    	try {
-	    		Socket socket = server.accept();
-	    		new ThreadedSocket(socket).start();
-	    	} catch(IOException e) {
-	    		System.out.println(e.getMessage());
-	    		server.close();
-	    	}
-	    }
+		String message;
+		while((message = in.readLine()) != null) {
+			textArea.append(message + "\n");
+		}
+		
+		socket.close();
 	}
 
 	/**
 	 * Create the frame.
 	 */
-	public MultiThreadedServer() {
+	public Client() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -63,9 +73,8 @@ public class MultiThreadedServer extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
-		textArea = new JTextArea();
 		textArea.setEditable(false);
-		textArea.append("Your chat has begun!\n");
+		textArea.append("Waiting to join chat...\n");
 		
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -73,10 +82,7 @@ public class MultiThreadedServer extends JFrame {
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textArea.append("SERVER: " + e.getActionCommand() + "\n");
-				for (PrintWriter current : ThreadedSocket.out) {
-					current.println("SERVER: " + e.getActionCommand());
-				}
+				out.println(clientName + ": " + e.getActionCommand());
 				textField.setText("");
 			}
 		});
