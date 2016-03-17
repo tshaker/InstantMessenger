@@ -28,14 +28,13 @@ public class MultiThreadedServer extends JFrame {
 	private JScrollPane scrollPane;
 	
 	private static String port;
-	private static ServerSocket server;
 	
 	/**
 	 * Launch the application.
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {		
-		port = JOptionPane.showInputDialog("Port number:");
+		port = JOptionPane.showInputDialog("Port Number:");
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
