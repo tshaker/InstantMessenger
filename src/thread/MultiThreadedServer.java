@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -26,11 +27,16 @@ public class MultiThreadedServer extends JFrame {
 	public static JTextArea textArea; // TODO: pass the object and take away static
 	private JScrollPane scrollPane;
 	
+	private static String port;
+	private static ServerSocket server;
+	
 	/**
 	 * Launch the application.
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException {		
+		port = JOptionPane.showInputDialog("Port number:");
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -41,17 +47,23 @@ public class MultiThreadedServer extends JFrame {
 				}
 			}
 		});
-				
-	    ServerSocket server = new ServerSocket(9999);
-	    while(true) {
-	    	try {
-	    		Socket socket = server.accept();
-	    		new ThreadedSocket(socket).start();
-	    	} catch(IOException e) {
-	    		System.out.println(e.getMessage());
-	    		server.close();
-	    	}
-	    }
+		
+		try {
+			ServerSocket server = new ServerSocket(Integer.parseInt(port));
+			
+			while(true) {
+		    	try {
+		    		Socket socket = server.accept();
+		    		new ThreadedSocket(socket).start();
+		    	} catch(IOException e) {
+		    		System.out.println(e.getMessage());
+		    		server.close();
+		    	}
+		    }
+		} catch(Exception e) {
+			System.out.println("ERROR: Could not connect to port \"" + port + "\".");
+			System.exit(-1);
+		}
 	}
 
 	/**
