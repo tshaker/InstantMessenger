@@ -21,9 +21,10 @@ public class Client extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-	private static JTextArea textArea;
+	private static JTextArea textArea = new JTextArea();
 	private JScrollPane scrollPane;
 	
+	private static String clientName;
 	private static Socket socket;
 	private static PrintWriter out;
 	private static BufferedReader in;
@@ -42,7 +43,8 @@ public class Client extends JFrame {
 				}
 			}
 		});
-				
+		
+		clientName = "CLIENT";
 		String hostName = "localhost";
 		int portNumber = 9999;
 		
@@ -50,6 +52,8 @@ public class Client extends JFrame {
 		out = new PrintWriter(socket.getOutputStream(), true);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		
+		out.println(clientName + " has joined the chat!");
+				
 		String message;
 		while((message = in.readLine()) != null) {
 			textArea.append(message + "\n");
@@ -69,8 +73,8 @@ public class Client extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
-		textArea = new JTextArea();
 		textArea.setEditable(false);
+		textArea.append("Waiting to join chat...\n");
 		
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -78,8 +82,7 @@ public class Client extends JFrame {
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textArea.append("CLIENT: " + e.getActionCommand() + "\n");
-				out.println("CLIENT: " + e.getActionCommand());
+				out.println(clientName + ": " + e.getActionCommand());
 				textField.setText("");
 			}
 		});

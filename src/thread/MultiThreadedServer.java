@@ -21,7 +21,7 @@ public class MultiThreadedServer extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-	public static JTextArea textArea;
+	public static JTextArea textArea; // TODO: pass the object and take away static
 	private JScrollPane scrollPane;
 	
 	/**
@@ -39,7 +39,7 @@ public class MultiThreadedServer extends JFrame {
 				}
 			}
 		});
-			    
+				
 	    ServerSocket server = new ServerSocket(9999);
 	    while(true) {
 	    	try {
@@ -65,6 +65,7 @@ public class MultiThreadedServer extends JFrame {
 		
 		textArea = new JTextArea();
 		textArea.setEditable(false);
+		textArea.append("Your chat has begun!\n");
 		
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);

@@ -26,9 +26,17 @@ public class ThreadedSocket extends Thread {
 			in.add(new BufferedReader(new InputStreamReader(socket.getInputStream())));
 			
 			while (true) {
-				for (int i = 0; i < in.size(); i++) {
-					if (in.get(i).ready()) {
-						MultiThreadedServer.textArea.append(in.get(i).readLine() + "\n");
+				synchronized (in) {
+					for (int i = 0; i < in.size(); i++) {
+						if ((in.get(i) != null) && in.get(i).ready()) {						
+							String message = in.get(i).readLine();
+							MultiThreadedServer.textArea.append(message + "\n");
+							
+							for (PrintWriter current : out) {
+								current.println(message);
+								current.flush();
+							}
+						}
 					}
 				}
 			}
