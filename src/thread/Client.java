@@ -22,17 +22,23 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.JTextArea;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import javax.swing.JButton;
 
 public class Client extends JFrame {
 
@@ -48,6 +54,7 @@ public class Client extends JFrame {
 	private static String client;
 	private static String IP;
 	private static String port;
+	private JButton btnSendFile;
 
 	/**
 	 * Launch the application.
@@ -158,6 +165,51 @@ public class Client extends JFrame {
 		
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
+		
+		btnSendFile = new JButton("Send File");
+		btnSendFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File file = null;
+				
+				final JFileChooser fc = new JFileChooser(); //Create a file chooser to browse files							
+				int returnVal = fc.showDialog(null, "Send");
+			    if (returnVal == JFileChooser.APPROVE_OPTION) {
+		        	file = fc.getSelectedFile();
+		        	textField.setEditable(false);
+//		        	showMessage("A file is currently being shared..."); TODO: not send to itself
+		        	out.println("A file is currently being shared...");
+			    }
+			    
+			    try {
+					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.getPath()));
+					BufferedOutputStream outStream = new BufferedOutputStream(socket.getOutputStream());
+				    				    
+				    byte[] buffer = new byte[1024];
+		            int read;
+		            while ((read = bis.read(buffer))!=-1) {
+		            	outStream.write(buffer, 0, read);
+		            	outStream.flush();
+		            }
+		            		            
+		            if (file.length() % 1024 == 0) {
+				    	outStream.write(new byte[1], 0, 1);
+		            	outStream.flush();
+				    }
+		            
+		            bis.close();
+		            showMessage("File shared!");
+			    } catch (FileNotFoundException e1) {
+		            showMessage("Could not send file.");
+					System.out.println(e1.getMessage());
+				} catch (IOException e1) {
+		            showMessage("Could not send file.");
+					System.out.println(e1.getMessage());
+				}
+			    
+	            textField.setEditable(true);
+			}
+		});
+		scrollPane.setColumnHeaderView(btnSendFile);
 		
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {

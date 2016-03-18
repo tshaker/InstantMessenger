@@ -40,8 +40,8 @@ import javax.swing.JFileChooser;
 public class MultiThreadedServer extends JFrame {
 
 	private JPanel contentPane;
-	private static JTextField textField;
-	public static JTextArea textArea; // TODO: pass the object and take away static
+	public static JTextField textField;
+	public static JTextArea textArea;
 	private JScrollPane scrollPane;
 	
 	private static String port;
