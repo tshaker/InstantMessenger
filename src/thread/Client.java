@@ -6,8 +6,10 @@ import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -15,7 +17,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -23,11 +31,12 @@ import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 
 public class Client extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private static JTextField textField;
 	private static JTextArea textArea = new JTextArea();
 	private JScrollPane scrollPane;
 	
@@ -82,11 +91,41 @@ public class Client extends JFrame {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
+			BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+			
 			out.println(client + " has joined the chat!");
-					
+			
 			String message;
-			while((message = in.readLine()) != null) {
-				textArea.append(message + "\n");
+			while ((message = in.readLine()) != null) {
+				if (message.equals("A file is currently being shared...")) {
+					textArea.append(message + "\n");
+					textField.setEditable(false);
+					
+					try {
+						String input = JOptionPane.showInputDialog("Save file:");
+						File f1 = new File(input);
+						FileOutputStream fs = new FileOutputStream(f1);
+						
+						BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(f1));
+					
+						byte[] buffer = new byte[1024];
+			            int read;
+			            while (((read = bis.read(buffer)) != -1)) {
+			            	outStream.write(buffer, 0, read);
+			            	outStream.flush();
+			            	if (read < 1024) {
+			            		break;
+			            	}
+			            }
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+		            
+		            textField.setEditable(true);
+		            textArea.append("File shared!\n");
+				} else {
+					textArea.append(message + "\n");
+				}
 			}
 		} catch (Exception e) {
 			System.out.println("ERROR: Could not connect to port \"" + port + "\".");
