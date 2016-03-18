@@ -8,10 +8,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
@@ -19,21 +30,29 @@ import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 
 public class MultiThreadedServer extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
+	private static JTextField textField;
 	public static JTextArea textArea; // TODO: pass the object and take away static
 	private JScrollPane scrollPane;
 	
 	private static String port;
+	private JButton btnSendFile;
+	
+	private static ArrayList<Socket> sockets = new ArrayList<Socket>();
 	
 	/**
 	 * Launch the application.
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {		
+	public static void main(String[] args) throws IOException {
 		port = JOptionPane.showInputDialog("Port Number:");
 		
 		EventQueue.invokeLater(new Runnable() {
@@ -54,6 +73,7 @@ public class MultiThreadedServer extends JFrame {
 		    	try {
 		    		Socket socket = server.accept();
 		    		new ThreadedSocket(socket).start();
+		    		sockets.add(socket);
 		    	} catch(IOException e) {
 		    		System.out.println(e.getMessage());
 		    		server.close();
@@ -91,6 +111,56 @@ public class MultiThreadedServer extends JFrame {
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
 		
+		btnSendFile = new JButton("Send File");
+		btnSendFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				File file = null;
+				
+				final JFileChooser fc = new JFileChooser(); //Create a file chooser to browse files							
+				int returnVal = fc.showDialog(null, "Send");
+			    if (returnVal == JFileChooser.APPROVE_OPTION) {
+		        	file = fc.getSelectedFile();
+		        	for (PrintWriter current : ThreadedSocket.out) {
+						current.println("A file is currently being shared...");
+					}
+		        	textField.setEditable(false);
+		        	textArea.append("A file is currently being shared...\n");
+			    }
+			    
+			    try {
+					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.getPath()));
+					ArrayList<BufferedOutputStream> outStreams = new ArrayList<BufferedOutputStream>();
+				    for (Socket s : sockets) {
+				    	outStreams.add(new BufferedOutputStream(s.getOutputStream()));
+				    }
+				    
+				    byte[] buffer = new byte[1024];
+		            int read;
+		            while ((read = bis.read(buffer))!=-1) {
+		            	for (BufferedOutputStream outSt : outStreams) {
+		            		outSt.write(buffer, 0, read);
+		            		outSt.flush();
+		            	}
+		            }
+		            
+		            if (file.length() % 1024 == 0) {
+				    	for (BufferedOutputStream outSt : outStreams) {
+		            		outSt.write(new byte[1], 0, 1);
+		            		outSt.flush();
+		            	}
+				    }
+		            
+		            bis.close();
+		            textField.setEditable(true);
+			    } catch (FileNotFoundException e1) {
+					System.out.println(e1.getMessage());
+				} catch (IOException e1) {
+					System.out.println(e1.getMessage());
+				}
+			}
+		});
+		scrollPane.setColumnHeaderView(btnSendFile);
+		
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -104,5 +174,4 @@ public class MultiThreadedServer extends JFrame {
 		contentPane.add(textField, BorderLayout.SOUTH);
 		textField.setColumns(10);
 	}
-
 }
