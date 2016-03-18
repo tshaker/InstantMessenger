@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.JTextArea;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -98,7 +99,7 @@ public class Client extends JFrame {
 			String message;
 			while ((message = in.readLine()) != null) {
 				if (message.equals("A file is currently being shared...")) {
-					textArea.append(message + "\n");
+					showMessage(message);
 					textField.setEditable(false);
 					
 					try {
@@ -122,9 +123,9 @@ public class Client extends JFrame {
 					}
 		            
 		            textField.setEditable(true);
-		            textArea.append("File shared!\n");
+		            showMessage("File shared!");
 				} else {
-					textArea.append(message + "\n");
+					showMessage(message);
 				}
 			}
 		} catch (Exception e) {
@@ -153,7 +154,7 @@ public class Client extends JFrame {
 		setContentPane(contentPane);
 		
 		textArea.setEditable(false);
-		textArea.append("Waiting to join chat...\n");
+		showMessage("Waiting to join chat...");
 		
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -167,5 +168,16 @@ public class Client extends JFrame {
 		});
 		contentPane.add(textField, BorderLayout.SOUTH);
 		textField.setColumns(10);
+	}
+	
+	static void showMessage(final String text){
+		//update GUI chatWindow
+		SwingUtilities.invokeLater( //set aside a thread to update the GUI
+			new Runnable(){
+				public void run(){ //whenever we update the GUI, this method gets called
+					textArea.append(text + "\n");
+				}
+			}
+		);
 	}
 }

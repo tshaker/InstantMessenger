@@ -24,6 +24,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -106,7 +107,7 @@ public class MultiThreadedServer extends JFrame {
 		
 		textArea = new JTextArea();
 		textArea.setEditable(false);
-		textArea.append("Your chat has begun!\n");
+		showMessage("Your chat has begun!");
 		
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -124,7 +125,7 @@ public class MultiThreadedServer extends JFrame {
 						current.println("A file is currently being shared...");
 					}
 		        	textField.setEditable(false);
-		        	textArea.append("A file is currently being shared...\n");
+		        	showMessage("A file is currently being shared...");
 			    }
 			    
 			    try {
@@ -151,12 +152,12 @@ public class MultiThreadedServer extends JFrame {
 				    }
 		            
 		            bis.close();
-		            textArea.append("File shared!\n");
+		            showMessage("File shared!");
 			    } catch (FileNotFoundException e1) {
-			    	textArea.append("Could not send file.\n");
+		            showMessage("Could not send file.");
 					System.out.println(e1.getMessage());
 				} catch (IOException e1) {
-			    	textArea.append("Could not send file.\n");
+		            showMessage("Could not send file.");
 					System.out.println(e1.getMessage());
 				}
 			    
@@ -168,7 +169,7 @@ public class MultiThreadedServer extends JFrame {
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textArea.append("HOST: " + e.getActionCommand() + "\n");
+				showMessage("HOST: " + e.getActionCommand());
 				for (PrintWriter current : ThreadedSocket.out) {
 					current.println("HOST: " + e.getActionCommand());
 				}
@@ -177,5 +178,16 @@ public class MultiThreadedServer extends JFrame {
 		});
 		contentPane.add(textField, BorderLayout.SOUTH);
 		textField.setColumns(10);
+	}
+	
+	static void showMessage(final String text){
+		//update GUI chatWindow
+		SwingUtilities.invokeLater( //set aside a thread to update the GUI
+			new Runnable(){
+				public void run(){ //whenever we update the GUI, this method gets called
+					textArea.append(text + "\n");
+				}
+			}
+		);
 	}
 }

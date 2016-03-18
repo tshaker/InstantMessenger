@@ -30,7 +30,7 @@ public class ThreadedSocket extends Thread {
 					for (int i = 0; i < in.size(); i++) {
 						if ((in.get(i) != null) && in.get(i).ready()) {						
 							String message = in.get(i).readLine();
-							MultiThreadedServer.textArea.append(message + "\n");
+							MultiThreadedServer.showMessage(message);
 							
 							for (PrintWriter current : out) {
 								current.println(message);
