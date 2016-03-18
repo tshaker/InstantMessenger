@@ -133,7 +133,7 @@ public class MultiThreadedServer extends JFrame {
 				    for (Socket s : sockets) {
 				    	outStreams.add(new BufferedOutputStream(s.getOutputStream()));
 				    }
-				    
+				    				    
 				    byte[] buffer = new byte[1024];
 		            int read;
 		            while ((read = bis.read(buffer))!=-1) {
@@ -142,7 +142,7 @@ public class MultiThreadedServer extends JFrame {
 		            		outSt.flush();
 		            	}
 		            }
-		            
+		            		            
 		            if (file.length() % 1024 == 0) {
 				    	for (BufferedOutputStream outSt : outStreams) {
 		            		outSt.write(new byte[1], 0, 1);
@@ -151,12 +151,16 @@ public class MultiThreadedServer extends JFrame {
 				    }
 		            
 		            bis.close();
-		            textField.setEditable(true);
+		            textArea.append("File shared!\n");
 			    } catch (FileNotFoundException e1) {
+			    	textArea.append("Could not send file.\n");
 					System.out.println(e1.getMessage());
 				} catch (IOException e1) {
+			    	textArea.append("Could not send file.\n");
 					System.out.println(e1.getMessage());
 				}
+			    
+	            textField.setEditable(true);
 			}
 		});
 		scrollPane.setColumnHeaderView(btnSendFile);

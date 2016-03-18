@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -90,11 +91,7 @@ public class Client extends JFrame {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
-			File f1 = new File("potato");
-			FileOutputStream fs = new FileOutputStream(f1);
-			
 			BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
-			BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(f1));
 			
 			out.println(client + " has joined the chat!");
 			
@@ -104,17 +101,28 @@ public class Client extends JFrame {
 					textArea.append(message + "\n");
 					textField.setEditable(false);
 					
-					byte[] buffer = new byte[1024];
-		            int read;
-		            while (((read = bis.read(buffer)) != -1)) {
-		            	outStream.write(buffer, 0, read);
-		            	outStream.flush();
-		            	if (read < 1024) {
-		            		break;
-		            	}
-		            }
+					try {
+						String input = JOptionPane.showInputDialog("Save file:");
+						File f1 = new File(input);
+						FileOutputStream fs = new FileOutputStream(f1);
+						
+						BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(f1));
+					
+						byte[] buffer = new byte[1024];
+			            int read;
+			            while (((read = bis.read(buffer)) != -1)) {
+			            	outStream.write(buffer, 0, read);
+			            	outStream.flush();
+			            	if (read < 1024) {
+			            		break;
+			            	}
+			            }
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
 		            
 		            textField.setEditable(true);
+		            textArea.append("File shared!\n");
 				} else {
 					textArea.append(message + "\n");
 				}
