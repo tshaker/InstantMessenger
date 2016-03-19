@@ -16,7 +16,8 @@ Of course, the host can always just send the file it's received to all the clien
 we added these minor, yet extremely helpful, add-ons:
 * Allowing the clients to input their names for all to see in the messenger.
 * Notifications for the whole chatroom whenever someone enters or exits the chat.
+* We tested sending audio files and we were able to send small ones!
 
-We hope you enjoy it!
+We hope you enjoy it,
 
 Timothy Shaker & Parker Wilf
