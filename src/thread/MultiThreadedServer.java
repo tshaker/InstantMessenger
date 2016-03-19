@@ -24,6 +24,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.JTextArea;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -39,8 +40,8 @@ import javax.swing.JFileChooser;
 public class MultiThreadedServer extends JFrame {
 
 	private JPanel contentPane;
-	private static JTextField textField;
-	public static JTextArea textArea; // TODO: pass the object and take away static
+	public static JTextField textField;
+	public static JTextArea textArea;
 	private JScrollPane scrollPane;
 	
 	private static String port;
@@ -106,7 +107,7 @@ public class MultiThreadedServer extends JFrame {
 		
 		textArea = new JTextArea();
 		textArea.setEditable(false);
-		textArea.append("Your chat has begun!\n");
+		showMessage("Your chat has begun!");
 		
 		scrollPane = new JScrollPane(textArea);
 		contentPane.add(scrollPane, BorderLayout.CENTER);
@@ -120,47 +121,10 @@ public class MultiThreadedServer extends JFrame {
 				int returnVal = fc.showDialog(null, "Send");
 			    if (returnVal == JFileChooser.APPROVE_OPTION) {
 		        	file = fc.getSelectedFile();
-		        	for (PrintWriter current : ThreadedSocket.out) {
-						current.println("A file is currently being shared...");
-					}
-		        	textField.setEditable(false);
-		        	textArea.append("A file is currently being shared...\n");
+		        	showMessage("A file is currently being shared...");
 			    }
 			    
-			    try {
-					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.getPath()));
-					ArrayList<BufferedOutputStream> outStreams = new ArrayList<BufferedOutputStream>();
-				    for (Socket s : sockets) {
-				    	outStreams.add(new BufferedOutputStream(s.getOutputStream()));
-				    }
-				    				    
-				    byte[] buffer = new byte[1024];
-		            int read;
-		            while ((read = bis.read(buffer))!=-1) {
-		            	for (BufferedOutputStream outSt : outStreams) {
-		            		outSt.write(buffer, 0, read);
-		            		outSt.flush();
-		            	}
-		            }
-		            		            
-		            if (file.length() % 1024 == 0) {
-				    	for (BufferedOutputStream outSt : outStreams) {
-		            		outSt.write(new byte[1], 0, 1);
-		            		outSt.flush();
-		            	}
-				    }
-		            
-		            bis.close();
-		            textArea.append("File shared!\n");
-			    } catch (FileNotFoundException e1) {
-			    	textArea.append("Could not send file.\n");
-					System.out.println(e1.getMessage());
-				} catch (IOException e1) {
-			    	textArea.append("Could not send file.\n");
-					System.out.println(e1.getMessage());
-				}
-			    
-	            textField.setEditable(true);
+			    sendFile(file);
 			}
 		});
 		scrollPane.setColumnHeaderView(btnSendFile);
@@ -168,7 +132,7 @@ public class MultiThreadedServer extends JFrame {
 		textField = new JTextField();
 		textField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				textArea.append("HOST: " + e.getActionCommand() + "\n");
+				showMessage("HOST: " + e.getActionCommand());
 				for (PrintWriter current : ThreadedSocket.out) {
 					current.println("HOST: " + e.getActionCommand());
 				}
@@ -177,5 +141,59 @@ public class MultiThreadedServer extends JFrame {
 		});
 		contentPane.add(textField, BorderLayout.SOUTH);
 		textField.setColumns(10);
+	}
+	
+	static void showMessage(final String text){
+		//update GUI chatWindow
+		SwingUtilities.invokeLater( //set aside a thread to update the GUI
+			new Runnable(){
+				public void run(){ //whenever we update the GUI, this method gets called
+					textArea.append(text + "\n");
+				}
+			}
+		);
+	}
+	
+	public static void sendFile(File file) {
+		textField.setEditable(false);
+		
+		for (PrintWriter current : ThreadedSocket.out) {
+			current.println("A file is currently being shared...");
+		}
+		
+		try {
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.getPath()));
+			ArrayList<BufferedOutputStream> outStreams = new ArrayList<BufferedOutputStream>();
+		    for (Socket s : sockets) {
+		    	outStreams.add(new BufferedOutputStream(s.getOutputStream()));
+		    }
+		    				    
+		    byte[] buffer = new byte[1024];
+            int read;
+            while ((read = bis.read(buffer))!=-1) {
+            	for (BufferedOutputStream outSt : outStreams) {
+            		outSt.write(buffer, 0, read);
+            		outSt.flush();
+            	}
+            }
+            		            
+            if (file.length() % 1024 == 0) {
+		    	for (BufferedOutputStream outSt : outStreams) {
+            		outSt.write(new byte[1], 0, 1);
+            		outSt.flush();
+            	}
+		    }
+            
+            bis.close();
+            showMessage("File shared!");
+	    } catch (FileNotFoundException e1) {
+            showMessage("Could not send file.");
+			System.out.println(e1.getMessage());
+		} catch (IOException e1) {
+            showMessage("Could not send file.");
+			System.out.println(e1.getMessage());
+		}
+	    
+        textField.setEditable(true);
 	}
 }
