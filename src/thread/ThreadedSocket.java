@@ -25,11 +25,13 @@ public class ThreadedSocket extends Thread {
 	
 	public static ArrayList<PrintWriter> out = new ArrayList<PrintWriter>();
 	private static ArrayList<BufferedReader> in = new ArrayList<BufferedReader>();
+	private static ArrayList<BufferedInputStream> bis = new ArrayList<BufferedInputStream>();
 	
 	public void run() {
 		try {
 			out.add(new PrintWriter(socket.getOutputStream(), true));
 			in.add(new BufferedReader(new InputStreamReader(socket.getInputStream())));
+			bis.add(new BufferedInputStream(socket.getInputStream()));
 			
 			while (true) {
 				synchronized (in) {
@@ -43,29 +45,30 @@ public class ThreadedSocket extends Thread {
 									current.println(message);
 									current.flush();
 								}
-							} else {								
+							} else {
 								MultiThreadedServer.textField.setEditable(false);
 								
 								// receiving file from the client
-								try {
-									String input = JOptionPane.showInputDialog("Save file:");
-									File f1 = new File(input);
-									FileOutputStream fs = new FileOutputStream(f1);
-									
-									BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
-									BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(f1));
-								
-									byte[] buffer = new byte[1024];
-						            int read;
-						            while (((read = bis.read(buffer)) != -1)) {
-						            	outStream.write(buffer, 0, read);
-						            	outStream.flush();
-						            	if (read < 1024) {
-						            		break;
-						            	}
-						            }
-								} catch (Exception e) {
-									System.out.println(e.getMessage());
+								synchronized (bis) {
+									try {
+										String input = JOptionPane.showInputDialog("Save file:");
+										File f1 = new File(input);
+										FileOutputStream fs = new FileOutputStream(f1);
+										
+										BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(f1));
+
+										byte[] buffer = new byte[1024];
+							            int read;
+							            while (((read = bis.get(i).read(buffer)) != -1)) {
+							            	outStream.write(buffer, 0, read);
+							            	outStream.flush();
+							            	if (read < 1024) {
+							            		break;
+							            	}
+							            }
+									} catch (Exception e) {
+										System.out.println(e.getMessage());
+									}
 								}
 					            
 					            MultiThreadedServer.textField.setEditable(true);

@@ -121,47 +121,10 @@ public class MultiThreadedServer extends JFrame {
 				int returnVal = fc.showDialog(null, "Send");
 			    if (returnVal == JFileChooser.APPROVE_OPTION) {
 		        	file = fc.getSelectedFile();
-		        	for (PrintWriter current : ThreadedSocket.out) {
-						current.println("A file is currently being shared...");
-					}
-		        	textField.setEditable(false);
 		        	showMessage("A file is currently being shared...");
 			    }
 			    
-			    try {
-					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.getPath()));
-					ArrayList<BufferedOutputStream> outStreams = new ArrayList<BufferedOutputStream>();
-				    for (Socket s : sockets) {
-				    	outStreams.add(new BufferedOutputStream(s.getOutputStream()));
-				    }
-				    				    
-				    byte[] buffer = new byte[1024];
-		            int read;
-		            while ((read = bis.read(buffer))!=-1) {
-		            	for (BufferedOutputStream outSt : outStreams) {
-		            		outSt.write(buffer, 0, read);
-		            		outSt.flush();
-		            	}
-		            }
-		            		            
-		            if (file.length() % 1024 == 0) {
-				    	for (BufferedOutputStream outSt : outStreams) {
-		            		outSt.write(new byte[1], 0, 1);
-		            		outSt.flush();
-		            	}
-				    }
-		            
-		            bis.close();
-		            showMessage("File shared!");
-			    } catch (FileNotFoundException e1) {
-		            showMessage("Could not send file.");
-					System.out.println(e1.getMessage());
-				} catch (IOException e1) {
-		            showMessage("Could not send file.");
-					System.out.println(e1.getMessage());
-				}
-			    
-	            textField.setEditable(true);
+			    sendFile(file);
 			}
 		});
 		scrollPane.setColumnHeaderView(btnSendFile);
@@ -189,5 +152,48 @@ public class MultiThreadedServer extends JFrame {
 				}
 			}
 		);
+	}
+	
+	public static void sendFile(File file) {
+		textField.setEditable(false);
+		
+		for (PrintWriter current : ThreadedSocket.out) {
+			current.println("A file is currently being shared...");
+		}
+		
+		try {
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file.getPath()));
+			ArrayList<BufferedOutputStream> outStreams = new ArrayList<BufferedOutputStream>();
+		    for (Socket s : sockets) {
+		    	outStreams.add(new BufferedOutputStream(s.getOutputStream()));
+		    }
+		    				    
+		    byte[] buffer = new byte[1024];
+            int read;
+            while ((read = bis.read(buffer))!=-1) {
+            	for (BufferedOutputStream outSt : outStreams) {
+            		outSt.write(buffer, 0, read);
+            		outSt.flush();
+            	}
+            }
+            		            
+            if (file.length() % 1024 == 0) {
+		    	for (BufferedOutputStream outSt : outStreams) {
+            		outSt.write(new byte[1], 0, 1);
+            		outSt.flush();
+            	}
+		    }
+            
+            bis.close();
+            showMessage("File shared!");
+	    } catch (FileNotFoundException e1) {
+            showMessage("Could not send file.");
+			System.out.println(e1.getMessage());
+		} catch (IOException e1) {
+            showMessage("Could not send file.");
+			System.out.println(e1.getMessage());
+		}
+	    
+        textField.setEditable(true);
 	}
 }

@@ -176,7 +176,7 @@ public class Client extends JFrame {
 			    if (returnVal == JFileChooser.APPROVE_OPTION) {
 		        	file = fc.getSelectedFile();
 		        	textField.setEditable(false);
-//		        	showMessage("A file is currently being shared..."); TODO: not send to itself
+		        	showMessage("A file is currently being shared...");
 		        	out.println("A file is currently being shared...");
 			    }
 			    
